@@ -1,0 +1,247 @@
+#Project: Analyze the complexity of a .py file
+#Start
+import string
+import re
+import time
+
+def main():
+#initailize
+    list1=[]
+    list2=[]
+    blank=0
+    words=""
+    chars=0         
+    line_count=1    
+    if_count=0      
+    forloop_count=0 
+    whileloop_count=0 
+    print_count=0   
+    def_count=0     
+    comment_count=0 
+    import_count=0  
+    written_line=0  
+    bool_count=0
+    comprehension=0
+    except_count=0
+    assert_count=0
+    graphics=""
+    
+#get user file
+    print("This program is to analyze the complexity of a .py file")
+    f=input("Please input a .py file:")
+
+#valid
+    def valid(f):
+        in_f=[va for va in f]
+        if not(in_f[-1]=='y' and in_f[-2]=='p' and in_f[-3]=='.'):
+            raise SyntaxError (" is not a .py file!")
+        return f
+    try:  
+        print("The program is going to analyse: ",valid(f))#valid(f))
+    except (SyntaxError) as wrong_f :
+        print("'",f,"'",wrong_f,sep="")
+        return main()
+
+    
+    try:
+        rfile= open(f,"r")    
+    except IOError:
+        print(f,"does not exist!")
+        return main()
+    except FileNotFoundError:
+        print(f,"does not exist!")
+        return main()
+
+#count time
+    ana_time=time.time()
+#read   
+    for line in rfile.readlines():
+        list1.append(line)
+        line_count +=1          #total number of lines
+        if line.strip():
+            written_line += 1   #count non-blank lines
+
+    
+    words = ''.join(str(i) for i in list1)
+    words = words.split()
+
+#count no. of characters
+    for cha in words:
+        chars += len(cha)
+    
+#determine whether is a graphic py file    
+    tmpa=0
+    for gr1 in words:        
+        g1_py=re.compile('graphics' and 'from' )
+        if g1_py.match(gr1):
+            tmpa +=1
+            
+    if tmpa!=0:
+        graphics='is'
+    else:
+        graphics='is not'
+
+# no. of if-else statement
+    for a in words:
+        ifelse= re.compile('if')
+        if ifelse.match(a):
+            if_count +=1
+
+# no. of for-loop statement
+    for b in words:
+        forloop = re.compile('for')
+        if forloop.match(b):
+            forloop_count +=1
+
+# no. of while-loop statement
+    for c in words:
+        whileloop= re.compile('while')
+        if whileloop.match(c):
+            whileloop_count +=1
+            
+# no. of print
+    for d in words:
+        printing= re.compile('print')
+        if printing.match(d):
+            print_count +=1
+            
+# no. of functions
+    for e in words:
+        fun= re.compile('def')
+        if fun.match(e):
+            def_count +=1
+
+# no. of comments
+    for fl in words:
+        comm= re.compile('#')
+        if comm.match(fl):
+            comment_count +=1
+
+# no. of imports
+    for g in words:
+        imp= re.compile('import')
+        if imp.match(g):
+            import_count +=1
+            
+# no. of boolean operators
+    for boo in words:
+        aon = re.compile('and'or'or' or'not')
+        if aon.match(boo):
+            bool_count +=1
+
+#no. of comprehension
+    for hen in words:
+        som = re.compile('='and'['and']') or re.compile('='and'{'and'}')
+        boh = bool(som.search(hen))
+        if boh==True:
+            comprehension +=1
+        
+#no. of assert
+    for ass in words:
+        rt= re.compile('assert')
+        if rt.match(ass):
+            assert_count +=1
+
+#no. of try-except-with
+    for tew in words:
+        tt = re.compile('except' or 'with')
+        if tt.match(tew):
+            except_count +=1
+                        
+#total no. of words
+
+    for j in words:
+        clean=""
+        for k in j:           
+            if k in string.punctuation:
+                    k= ""
+            for num in k:
+                if num.isdigit():
+                    k= ""
+            clean += k
+            
+        list2.append(clean)
+
+    for i in list2:
+        if i =="":
+            blank += 1
+                       
+#total no. of words 
+    total= len(list2)- blank
+
+#total no. of loops
+    totalloop= forloop_count + whileloop_count
+
+#Cyclomatic complexity
+    cc= 0
+    risk=""
+    degree=""
+    
+    cc= if_count+ totalloop + assert_count + comprehension + except_count + def_count + bool_count
+
+    if  0<cc<=10:
+        risk  ="Minimal"
+        degree="5"
+        
+    elif 11<=cc<=20:
+        risk  ="Moderate"
+        degree="10"
+        
+    elif 21<=cc<=50:
+        risk  ="High"
+        degree="20-40"
+        
+    elif 50<=cc<=100:
+        risk  ="Very High"
+        degree="40"
+        
+    else :
+        risk  ="Extremely High"
+        degree="60"
+
+#OUTPUT
+        
+    print("\nThe complexity in",f,":")
+    print("__________________________________________")
+    print("Total number of words(text only):   ",total)
+    print("Total number of words(with symbols):",len(words))
+    print("Total number of characters:         ",chars)
+    print("The number of written lines:        ",written_line)
+    print("The number of empty lines:          ",(line_count-written_line))
+    print("The number of lines with comment:   ",comment_count)
+    print("Total number of lines:              ",line_count)
+    print("------------------------------------------")
+    print("The total number of functions:      ",def_count)
+    print("The total number of imports:        ",import_count)
+    print("The number of if-else statements:   ",if_count)
+    print("The number of for-loop statements:  ",forloop_count)
+    print("The number of while-loop statements:",whileloop_count)
+    print("Total number of loop statements:    ",totalloop)
+    print("The number of try-except statements:",except_count)
+    print("The number of Boolean operators:    ",bool_count)
+    print("The number of print statements:     ",print_count)
+    print("The number of lists,sets and dicts: ",comprehension)
+    print("The number of asserts:              ",assert_count)    
+    print("------------------------------------------")
+    print("This",graphics,"a graphic .py file.")
+    print("------------------------------------------")
+    print("   Cyclomatic complexity of this file:")
+    print("The value of CC: ",cc,"marks.")
+    print("Level of Risk:",risk)
+    print("Bad Fix Probability: ",degree,"%",sep="")
+    print("------------------------------------------")
+    print("Duration of analysis: {:.5f}".format(time.time()-ana_time),"second")
+    print("__________________________________________\n")
+
+
+#repeat
+    con =input("Analyse other .py file?(Yes/No)")
+    if con=='Yes' or con=='yes' or con=='YES' or con=='Y' or con=='1' or con=='y':
+        print("\n==========================================")
+        return main()
+    else:
+        print("The program will end automatically!")
+        time.sleep(3)
+    
+main()
+#End
